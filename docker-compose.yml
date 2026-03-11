@@ -1,0 +1,59 @@
+# ============================================================
+# docker-compose.yml — Pitz' AI Workshop (paiw)
+# ============================================================
+#
+# Usage:
+#   cp .env.example .env       # fill in your API keys
+#   docker compose up --build
+#
+# GPU support (NVIDIA):
+#   Requires the NVIDIA Container Toolkit on the host:
+#   https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+#   Under WSL2, follow:
+#   https://docs.nvidia.com/cuda/wsl-user-guide/index.html
+#
+# CPU-only (no NVIDIA GPU):
+#   docker compose -f docker-compose.yml -f docker-compose.cpu.yml up --build
+# ============================================================
+
+services:
+  paiw:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: paiw:latest
+    container_name: paiw
+
+    ports:
+      - "8888:8888"   # JupyterLab
+      - "11434:11434" # Ollama REST API
+      - "8000:8000"   # FastAPI / custom inference server
+
+    volumes:
+      # Mount examples and data so edits on the host are immediately visible
+      - ./examples:/workspace/examples
+      - ./data:/workspace/data
+      # Persist downloaded Ollama models between container restarts
+      - ollama_models:/root/.ollama
+
+    environment:
+      # API keys — set these in a .env file (never commit secrets!)
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN:-}
+
+    # ── NVIDIA GPU passthrough (comment out if no NVIDIA GPU) ──
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+volumes:
+  ollama_models:

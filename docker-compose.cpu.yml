@@ -1,0 +1,8 @@
+# docker-compose.cpu.yml — CPU-only override for paiw
+# Use when no NVIDIA GPU is available (macOS, CPU-only Linux, etc.):
+#
+#   docker compose -f docker-compose.yml -f docker-compose.cpu.yml up --build
+
+services:
+  paiw:
+    deploy: {}   # removes the GPU reservation from docker-compose.yml
