@@ -59,6 +59,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         gnupg \
         lsb-release \
         software-properties-common \
+        # Compression utilities needed by external installers
+        zstd \
         # SSL / FFI (needed by some pip packages)
         libssl-dev \
         libffi-dev \
@@ -117,6 +119,39 @@ RUN pip install \
 # ── Core ML / LLM libraries ──────────────────────────────────
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
+
+# add a handy notebook/console helper for executing code cells from the
+# lab UI (Run ▶️ buttons).
+RUN pip install jupyterlab-code-runner
+
+# ── Jupyter LSP & language servers ───────────────────────────
+# install the JupyterLab language-server extension plus a handful of
+# common language servers referenced by the startup logs.  Mostly
+# optional; the container works fine without these, but the warning
+# message is less noisy when they're present.
+RUN pip install jupyterlab-lsp python-lsp-server[all] \
+    && npm install -g bash-language-server \
+                   dockerfile-language-server-nodejs \
+                   vscode-css-languageserver-bin \
+                   vscode-html-languageserver-bin \
+                   vscode-json-languageserver-bin \
+                   yaml-language-server
+
+# ── code-server (VS Code in the browser) ──────────────────────
+# We install the official code-server release and configure sensible
+# defaults via environment variables.  The container will expose
+# port 8080 and the entrypoint script starts the service if present.
+# Password protection may be enabled at runtime by setting
+# CODE_SERVER_PASSWORD in the compose file or .env.
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+# expose extra port for web-based VS Code
+EXPOSE 8080
+
+# default code-server environment
+ENV CODE_SERVER_BIND_ADDR=0.0.0.0:8080 \
+    CODE_SERVER_AUTH=none \
+    CODE_SERVER_PASSWORD=${CODE_SERVER_PASSWORD:-}
 
 # ── Workspace structure ──────────────────────────────────────
 RUN mkdir -p /workspace/examples \

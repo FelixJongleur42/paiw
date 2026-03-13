@@ -45,5 +45,21 @@ echo "[paiw] Examples   → /workspace/examples"
 echo "======================================================"
 echo ""
 
+# ── code-server (browser VS Code) ───────────────────────────
+if command -v code-server &> /dev/null; then
+    echo "[paiw] Starting code-server on port 8080 ..."
+    CODE_SERVER_ARGS="--bind-addr $CODE_SERVER_BIND_ADDR"
+    if [ -n "${CODE_SERVER_PASSWORD:-}" ]; then
+        echo "[paiw] code-server auth: password"
+        CODE_SERVER_ARGS="$CODE_SERVER_ARGS --auth password --password $CODE_SERVER_PASSWORD"
+    else
+        echo "[paiw] code-server auth: none (beware of open port!)"
+        CODE_SERVER_ARGS="$CODE_SERVER_ARGS --auth none"
+    fi
+    # run in background so the main CMD can still start
+    code-server $CODE_SERVER_ARGS &
+    echo "[paiw] code-server launched."
+fi
+
 # ── Execute CMD (default: JupyterLab) ────────────────────────
 exec "$@"

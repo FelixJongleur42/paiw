@@ -28,11 +28,14 @@ services:
       - "8888:8888"   # JupyterLab
       - "11434:11434" # Ollama REST API
       - "8000:8000"   # FastAPI / custom inference server
+      - "8080:8080"   # code-server (browser VS Code)
 
     volumes:
       # Mount examples and data so edits on the host are immediately visible
       - ./examples:/workspace/examples
       - ./data:/workspace/data
+      # optionally keep VS Code settings and extensions on the host
+      - ./.vscode:/workspace/.vscode
       # Persist downloaded Ollama models between container restarts
       - ollama_models:/root/.ollama
 
@@ -41,6 +44,8 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN:-}
+      # optional code-server password (leave empty for no auth)
+      - CODE_SERVER_PASSWORD=${CODE_SERVER_PASSWORD:-}
 
     # ── NVIDIA GPU passthrough (comment out if no NVIDIA GPU) ──
     deploy:
