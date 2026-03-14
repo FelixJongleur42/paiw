@@ -35,8 +35,11 @@ the Claude / OpenAI APIs — all in one container.
 ### 1 — Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) with Compose v2
-- *(GPU)* [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+- *(GPU)* NVIDIA GPU driver on the host
+- *(GPU)* [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) — the thin shim that exposes the host GPU to Docker containers
 - *(WSL2 GPU)* [CUDA on WSL User Guide](https://docs.nvidia.com/cuda/wsl-user-guide/index.html)
+
+> **Note:** The **CUDA Toolkit and cuDNN are already bundled inside the Docker image** (`nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04`). You do **not** need to install `cuda-toolkit` or cuDNN on the host — only the GPU driver and the NVIDIA Container Toolkit are required there.
 
 ### 2 — Configure API keys
 
