@@ -120,10 +120,6 @@ RUN pip install \
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
-# add a handy notebook/console helper for executing code cells from the
-# lab UI (Run ▶️ buttons).
-RUN pip install jupyterlab-code-runner
-
 # ── Jupyter LSP & language servers ───────────────────────────
 # install the JupyterLab language-server extension plus a handful of
 # common language servers referenced by the startup logs.  Mostly
